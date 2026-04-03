@@ -33,7 +33,7 @@
         .hide { display: none !important; }
         
         /* Start Screen */
-        #start-btn, #restart-btn {
+        #start-btn {
             background-color: #e53935;
             color: white;
             border: none;
@@ -44,7 +44,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        #start-btn:hover, #restart-btn:hover { background-color: #b71c1c; }
+        #start-btn:hover { background-color: #b71c1c; }
 
         /* Quiz Screen */
         #header {
@@ -85,6 +85,7 @@
 
         /* Result Screen */
         #score-text { font-size: 30px; font-weight: bold; margin: 20px 0; color: #4CAF50;}
+        .warning-text { color: #e53935; font-size: 14px; font-style: italic; margin-top: 10px;}
     </style>
 </head>
 <body>
@@ -92,9 +93,10 @@
     <div class="container">
         <!-- Màn hình Bắt đầu -->
         <div id="start-screen">
-            <h1>Itabooth PhaiNaxa - Amor Fati Q&Ac</h1>
+            <h1>Itabooth PhaiNaxa - Amor Fati Q&A</h1>
             <p>Q&A có <b>10 câu hỏi</b></p>
             <p>Thời gian làm: <b>5 phút</b></p>
+            <p class="warning-text">(Mỗi người chỉ được làm bài 1 lần duy nhất)</p>
             <br>
             <button id="start-btn">Bắt đầu</button>
         </div>
@@ -115,9 +117,8 @@
         <div id="result-screen" class="hide">
             <h1>Hoàn thành!</h1>
             <div id="score-text">Bạn đúng 0/10 câu</div>
-            <p>Hãy đưa cho staff xem điểm bạn nhé!</p>
-            <br>
-            <button id="restart-btn">Làm lại</button>
+            <p style="font-weight: bold;">Hãy đưa màn hình này cho staff xem điểm bạn nhé!</p>
+            <p class="warning-text">Bạn đã hoàn thành bài Test và không thể làm lại.</p>
         </div>
     </div>
 
@@ -162,8 +163,16 @@
         const timerText = document.getElementById('timer');
         const scoreText = document.getElementById('score-text');
 
+    
+        window.onload = function() {
+            if (localStorage.getItem('itaQuizCompleted') === 'true') {
+            
+                let savedScore = parseInt(localStorage.getItem('itaQuizScore'));
+                showResultScreen(savedScore);
+            }
+        };
+
         document.getElementById('start-btn').addEventListener('click', startQuiz);
-        document.getElementById('restart-btn').addEventListener('click', startQuiz);
 
         function shuffleArray(array) {
             let shuffled = [...array];
@@ -212,7 +221,6 @@
 
         function selectAnswer(button, selectedIdx, correctIdx) {
             const allButtons = optionsContainer.children;
-            // Khóa tất cả các nút để không bấm 2 lần
             for(let btn of allButtons) {
                 btn.classList.add('disabled');
             }
@@ -222,11 +230,9 @@
                 score++;
             } else {
                 button.classList.add('wrong');
-                // Hiển thị đáp án đúng màu xanh
                 allButtons[correctIdx].classList.add('correct');
             }
 
-            // Đợi 1.2 giây (1200 ms) rồi tự động chuyển câu
             setTimeout(() => {
                 loadNextQuestion();
             }, 1200); 
@@ -265,16 +271,25 @@
 
         function endQuiz() {
             clearInterval(timerInterval);
+            
+            localStorage.setItem('itaQuizCompleted', 'true');
+            localStorage.setItem('itaQuizScore', score);
+
+            showResultScreen(score);
+        }
+
+        function showResultScreen(finalScore) {
+            startScreen.classList.add('hide');
             quizScreen.classList.add('hide');
             resultScreen.classList.remove('hide');
             
             let feedback = "";
-            if(score === 10) feedback = "Chimera giỏi nhất!";
-            else if(score >= 7) feedback = "Quao";
-            else if(score >= 5) feedback = "Cũng ổn.";
+            if(finalScore === 10) feedback = "Chimera giỏi nhất!";
+            else if(finalScore >= 7) feedback = "Quao";
+            else if(finalScore >= 5) feedback = "Cũng ổn.";
             else feedback = "Èo";
 
-            scoreText.innerHTML = `Bạn đúng <span style="color:#e53935">${score}/10</span> câu<br><span style="font-size: 20px; color: #333; font-weight: normal">${feedback}</span>`;
+            scoreText.innerHTML = `Bạn đúng <span style="color:#e53935">${finalScore}/10</span> câu<br><span style="font-size: 20px; color: #333; font-weight: normal">${feedback}</span>`;
         }
     </script>
 </body>
