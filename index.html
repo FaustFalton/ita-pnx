@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Exam - 5 Phút</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+        }
+        h1 { color: #461a42; }
+        .hide { display: none !important; }
+        
+        /* Start Screen */
+        #start-btn, #restart-btn {
+            background-color: #e53935; /* Màu đỏ đô nổi bật */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #start-btn:hover, #restart-btn:hover { background-color: #b71c1c; }
+
+        /* Quiz Screen */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 18px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        #timer { color: #d9534f; }
+        #question-text {
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            line-height: 1.5;
+            text-align: left;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            background-color: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .option-btn:hover { background-color: #ffdde0; border-color: #e53935; }
+        .option-btn.correct { background-color: #4CAF50; color: white; border-color: #388E3C; pointer-events: none;}
+        .option-btn.wrong { background-color: #F44336; color: white; border-color: #D32F2F; pointer-events: none;}
+        .disabled { pointer-events: none; opacity: 0.8; }
+        
+        #next-btn {
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        #next-btn:hover { background-color: #115293; }
+
+        /* Result Screen */
+        #score-text { font-size: 30px; font-weight: bold; margin: 20px 0; color: #4CAF50;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Màn hình Bắt đầu -->
+        <div id="start-screen">
+            <h1>Bài Kiểm Tra Kiến Thức</h1>
+            <p>Bài thi có <b>10 câu hỏi</b> (chọn ngẫu nhiên từ ngân hàng 22 câu).</p>
+            <p>Thời gian làm bài: <b>5 Phút</b></p>
+            <br>
+            <button id="start-btn">Bắt Đầu Làm Bài</button>
+        </div>
+
+        <!-- Màn hình Câu hỏi -->
+        <div id="quiz-screen" class="hide">
+            <div id="header">
+                <span id="question-counter">Câu: 1/10</span>
+                <span id="timer">Thời gian: 05:00</span>
+            </div>
+            <div id="question-text">Nội dung câu hỏi sẽ hiển thị ở đây?</div>
+            <div id="options-container">
+                <!-- Các nút đáp án sẽ được tạo bằng JS -->
+            </div>
+            <button id="next-btn" class="hide">Câu Tiếp Theo ➔</button>
+        </div>
+
+        <!-- Màn hình Kết quả -->
+        <div id="result-screen" class="hide">
+            <h1>Hoàn Thành!</h1>
+            <div id="score-text">Bạn đúng 0/10 câu</div>
+            <p>Tuyệt vời! Bạn có muốn thử lại để kiểm tra các câu hỏi khác không?</p>
+            <br>
+            <button id="restart-btn">Làm Lại Bài Test</button>
+        </div>
+    </div>
+
+    <script>
+        // DỮ LIỆU 22 CÂU HỎI TRÍCH XUẤT TỪ ẢNH CỦA BẠN
+        const allQuestions = [
+            { q: "Câu 1: Ngày ra mắt banner của Anaxa", options: ["30/4", "30/3", "20/5", "15/4"], answer: 0 },
+            { q: "Câu 2: Ở kí ức của vòng lặp 67023, chỉ còn Phainon và Anaxa tiến tới Tâm Vòng Xoáy Sáng Thế và đối đầu với Hành Giả Trộm Lửa", options: ["Đúng. Hai người đã đồng hành cùng nhau tới cuối.", "Sai. Anaxa ở đây chỉ là tưởng tượng của Phainon."], answer: 1 },
+            { q: "Câu 3: Anaxa từng gọi Phainon là 'Kẻ bị Mnestia nguyền rủa' bởi gu thời trang vàng tím không giống ai. Phainon coi câu nhận xét đó là:", options: ["Khen. Vì 'Dũng khí độc hành cũng là đức tính tốt mà tôi học được từ thầy'.", "Chê. Huhu.", "Không ý kiến"], answer: 0 },
+            { q: "Câu 4: Trong cốt truyện 3.2, Phainon cho rằng trở thành Titan là đánh mất kí ức thì việc thành thần có ý nghĩa gì. Anaxa đã đáp rằng: '... Tìm lại kí ức kiếp trước? Đương nhiên không thành vấn đề. Huống hồ chẳng phải còn có cậu đó sao?'", options: ["Đúng", "Sai"], answer: 0 },
+            { q: "Câu 5: Trong 'Như Tôi Đã Viết', Phainon đã:", options: ["Tắm", "Ăn", "Nhìn thấy thần chú khắc trên người Anaxa", "Ngủ"], answer: 2 },
+            { q: "Câu 6: Anaxa đã viết trong lá thư chúc mừng tốt nghiệp của Phainon rằng:", options: ["'Lướt trên đại dương sách vở hay tìm tòi ở thực tại, cả hai đều có thể dẫn dắt con người đến với chân lý.'", "'Cậu là một trong những học sinh ưu tú nhất của tôi, nhưng điều này luôn có nghĩa là cậu và tôi - thầy của cậu, sẽ đi trên con đường khác nhau.'", "'Trong giả kim thuật, một trang giấy trắng chứa đựng tiềm năng vô hạn.'", "'Tìm kiếm chính là một con đường dài cô độc.'"], answer: 2 },
+            { q: "Câu 7: Anaxa nhận ra Phainon đánh mất nhân tính ở vòng lặp thứ bao nhiêu?", options: ["134", "520", "419", "365"], answer: 0 },
+            { q: "Câu 8: Lời hứa của Phainon với Anaxa trước khi Anaxa hoàn trả ngọn lửa Lí Trí là: 'Thầy của tôi, tôi xin thề rằng: Tôi sẽ dẫn dắt tất cả mọi người gặp lại nhau ở thế giới mới.'", options: ["Sai", "Đúng"], answer: 1 },
+            { q: "Câu 9: Tên nón ánh sáng của Anaxa:", options: ["Gặp Lại Ở Điểm Cuối Cùng", "Sinh Mệnh Đáng Bị Thiêu Rụi", "Học Giả Qua Đời", "Hướng Về Điều Không Thể Truy Hỏi"], answer: 1 },
+            { q: "Câu 10: Cách Anaxa đã gọi tên Phainon:", options: ["Phainon", "Học sinh giỏi của tôi", "Phainon của Aedes Elysia", "Tất cả đáp án trên"], answer: 3 },
+            { q: "Câu 11: Ngày ra mắt banner của Phainon", options: ["20/6", "2/7", "1/8", "15/7"], answer: 1 },
+            { q: "Câu 12: Tên nón ánh sáng của Phainon:", options: ["Giấc Mơ Vấn Vương Hương Lúa", "Sự Sụp Đổ Của Aeon", "Cuộc Chiến Chưa Nguôi", "Bình Minh Rực Cháy"], answer: 3 },
+            { q: "Câu 13: Tên thật của Phainon:", options: ["Kevin", "Kaslana", "Khaslana", "Phaenon"], answer: 2 },
+            { q: "Câu 14: Số vòng lặp của Phainon đã trải qua:", options: ["7749", "33550336", "5201314", "35530336"], answer: 1 },
+            { q: "Câu 15: Điền từ còn thiếu vào câu sau đây: 'Nhưng nếu bình minh chưa từng tồn tại, vậy hãy để ngọn lửa giận dữ thiêu đốt thân xác này, hóa thành __ của ngày mai!'", options: ["Mặt trời", "Mặt trời rực rỡ", "Mặt trời chói lọi", "Mặt trời tỏa sáng"], answer: 2 },
+            { q: "Câu 16: Tên hai Titan mà Anaxa và Phainon kế thừa:", options: ["Cerces - Kephale", "Cescer - Kaphel", "Caesar - Kapel", "Cerces - Kefale"], answer: 0 },
+            { q: "Câu 17: Trong event phiên bản 3.6 nuôi Thú Đại Địa 'Thời Tiết Đẹp Quá, Nuôi Nó Thôi!', Anaxa đã gọi Phainon là:", options: ["Chimera xuất sắc nhất tôi từng dạy", "Học trò xuất sắc nhất tôi từng dạy", "Thú đại địa xuất sắc nhất tôi từng dạy", "Anh hùng xuất sắc nhất tôi từng dạy"], answer: 0 },
+            { q: "Câu 18: 'Hành Giả Trộm Lửa' là tên do Anaxa đặt:", options: ["Đúng", "Ủa", "Sai"], answer: 0 },
+            { q: "Câu 19: Năm học trung bình ở Điện Cây Giác Ngộ trung bình là 4 năm, nhưng Phainon phải mất bao lâu mới tốt nghiệp?", options: ["5 năm", "7 năm", "8 năm", "10 năm"], answer: 3 },
+            { q: "Câu 20: Livestream giới thiệu phiên bản 3.4 ngôn ngữ Anh, Nhật, Hàn được dẫn bởi Owlbert và:", options: ["Phainon và Aglaea", "Phainon và Castorice", "Phainon và Anaxa", "Anaxa và Hyancine"], answer: 2 },
+            { q: "Câu 21: Học phái của Anaxa mà Phainon theo học tên là:", options: ["Sơn Dương", "Kính Bái", "Kéo Đá", "Hạt Trí Tuệ"], answer: 3 },
+            { q: "Câu 22: Anaxa đã nói gì với Phainon trong Trailer nhân vật của Phainon", options: ["Phainon của Aedes Elysiae, lý tưởng của cậu là gì?", "Phainon xứ Aedes Elysiae, lý tưởng của cậu là gì?", "Phainon, lý tưởng của cậu là gì?", "Phainon của Aedes Elysia, lý tưởng của cậu là gì?"], answer: 0 }
+        ];
+
+        let selectedQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeRemaining = 300; // 5 phút = 300 giây
+        let timerInterval;
+
+        // Các thành phần DOM
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const questionCounter = document.getElementById('question-counter');
+        const timerText = document.getElementById('timer');
+        const scoreText = document.getElementById('score-text');
+
+        // Lắng nghe sự kiện
+        document.getElementById('start-btn').addEventListener('click', startQuiz);
+        document.getElementById('restart-btn').addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', loadNextQuestion);
+
+        // Trộn mảng (Thuật toán Fisher-Yates)
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            timeRemaining = 300;
+            
+            // Random và chọn 10 câu
+            selectedQuestions = shuffleArray(allQuestions).slice(0, 10);
+
+            startScreen.classList.add('hide');
+            resultScreen.classList.add('hide');
+            quizScreen.classList.remove('hide');
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            updateTimerDisplay();
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            nextBtn.classList.add('hide');
+            let currentQ = selectedQuestions[currentQuestionIndex];
+            
+            // Xóa tiền tố "Câu X:" cũ nếu có và hiển thị số thứ tự mới (1 đến 10)
+            let qTextClean = currentQ.q.replace(/^Câu \d+:\s*/, '');
+            questionCounter.innerText = `Câu: ${currentQuestionIndex + 1}/10`;
+            questionText.innerText = qTextClean;
+            
+            optionsContainer.innerHTML = '';
+            
+            currentQ.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.onclick = () => selectAnswer(button, index, currentQ.answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(button, selectedIdx, correctIdx) {
+            const allButtons = optionsContainer.children;
+            // Khóa tất cả các nút để không chọn lại
+            for(let btn of allButtons) {
+                btn.classList.add('disabled');
+            }
+
+            if (selectedIdx === correctIdx) {
+                button.classList.add('correct');
+                score++;
+            } else {
+                button.classList.add('wrong');
+                // Hiển thị đáp án đúng màu xanh
+                allButtons[correctIdx].classList.add('correct');
+            }
+
+            // Đổi chữ nút Next nếu là câu cuối
+            if(currentQuestionIndex === 9) {
+                nextBtn.innerText = "Hoàn Thành & Nộp Bài";
+            } else {
+                nextBtn.innerText = "Câu Tiếp Theo ➔";
+            }
+            nextBtn.classList.remove('hide');
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 10) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function updateTimer() {
+            timeRemaining--;
+            updateTimerDisplay();
+            if (timeRemaining <= 0) {
+                endQuiz();
+            }
+        }
+
+        function updateTimerDisplay() {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            timerText.innerText = `Thời gian: ${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            // Đổi màu đỏ khi còn dưới 1 phút
+            if(timeRemaining < 60) {
+                timerText.style.color = "#D32F2F";
+                timerText.style.fontWeight = "bold";
+            } else {
+                timerText.style.color = "#d9534f";
+                timerText.style.fontWeight = "normal";
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            quizScreen.classList.add('hide');
+            resultScreen.classList.remove('hide');
+            
+            let feedback = "";
+            if(score === 10) feedback = "Xuất sắc! Bạn là Master thực thụ!";
+            else if(score >= 7) feedback = "Rất tốt! Bạn nắm cốt truyện rất vững.";
+            else if(score >= 5) feedback = "Cũng ổn, nhưng hãy đọc kỹ lore hơn nhé!";
+            else feedback = "Bạn cần tìm hiểu thêm cốt truyện rồi!";
+
+            scoreText.innerHTML = `Bạn đúng <span style="color:#e53935">${score}/10</span> câu<br><span style="font-size: 20px; color: #333; font-weight: normal">${feedback}</span>`;
+        }
+    </script>
+</body>
+</html>
